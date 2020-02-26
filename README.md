@@ -1,5 +1,5 @@
 # Pythonstein
-Raycasting on Python. This is clone of Wolfenstein 3d game
+Pythonstein - it's a python clone of Wolfenstein 3D.
 
 # Installing
 1. create a virtualenv: `virtualenv env`
