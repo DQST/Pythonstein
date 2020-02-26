@@ -4,7 +4,7 @@ import glm
 
 
 @dataclass
-class Player:
+class Ray:
     origin: glm.vec2
     radians: float
 
