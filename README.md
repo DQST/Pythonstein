@@ -1,4 +1,4 @@
-# pythonstein_raycasting
+# Pythonstein
 Raycasting on Python. This is clone of Wolfenstein 3d game
 
 # Installing
