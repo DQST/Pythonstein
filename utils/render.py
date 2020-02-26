@@ -1,12 +1,12 @@
 from dataclasses import dataclass, field
-from typing import Tuple, List
+from typing import Tuple, List, Optional
 
 import glm
 from PIL import Image, ImageDraw, ImageColor
 
 from utils.gridmap import GridMap
 from utils.hit import Hit
-from utils.player import Player
+from utils.ray import Ray
 
 
 COLOR_RED = ImageColor.getrgb('red')
@@ -35,20 +35,23 @@ class Render:
     def _swap_buffers(self):
         self._buffer, self._back_buffer = self._back_buffer, self._buffer
 
-    def _clear_buffer(self, draw: ImageDraw.ImageDraw):
-        draw.rectangle((0, 0, self.width, self.height), self.background)
+    def _clear_buffer(self, draw: ImageDraw.ImageDraw, box: Optional[Tuple[int, int, int, int]] = None):
+        if not box:
+            box = (0, 0, self.width, self.height)
+        draw.rectangle(box, self.background)
 
     def _draw_line(self, x1, y1, x2, y2, color):
         data = self._back_buffer.load()
         for y in range(y1, y2):
             data[x1, y] = color
 
-    @staticmethod
-    def _draw_help_map(draw: ImageDraw.ImageDraw,
+    def _draw_help_map(self,
+                       draw: ImageDraw.ImageDraw,
                        ray_origin: glm.vec2,
                        grid: GridMap,
                        scale: glm.ivec2,
                        points: List[glm.vec2]):
+        self._clear_buffer(draw, (0, 0, scale.x, scale.y))
         scale = scale / grid.size
         for x in range(grid.size.x):
             for y in range(grid.size.y):
@@ -64,21 +67,27 @@ class Render:
             point = point / grid.cell_size * scale
             draw.line((*player, *point), COLOR_YELLOW)
 
-    def _draw_scene(self, draw: ImageDraw.ImageDraw, ray_radians, wall_height: int, hits: List[Hit]):
+    def _draw_scene(self,
+                    draw: ImageDraw.ImageDraw,
+                    player_radians: float,
+                    projection_plane: float,
+                    wall_height: int,
+                    hits: List[Hit]):
+        y = self.height / 2
+        precomputed = wall_height * projection_plane
         for x, hit in enumerate(hits):
             if hit is not None:
-                correct_distance = hit.length * glm.cos(hit.radians - ray_radians)
-                column_height = wall_height / correct_distance * 277
-                y1 = self.height / 2 - column_height / 2
-                draw.line((x, y1, x, y1 + column_height), COLOR_GRAY)
+                correct_distance = hit.length * glm.cos(hit.radians - player_radians)
+                column_height = precomputed / correct_distance
+                draw.line((x, y - column_height, x, y + column_height), COLOR_GRAY)
 
-    def update_state(self, ray: Player, fov: float, grid: GridMap):
+    def update_state(self, ray: Ray, fov: float, grid: GridMap):
         draw = ImageDraw.Draw(self._back_buffer)
         self._clear_buffer(draw)
 
         hits = grid.ray_casting(self.width, fov, ray)
 
-        self._draw_scene(draw, ray.radians, grid.cell_size, hits)
+        self._draw_scene(draw, ray.radians, 277, grid.cell_size, hits)
         self._draw_help_map(draw, ray.origin, grid, glm.ivec2(200, 200), [i.point for i in hits])
 
         self._swap_buffers()
