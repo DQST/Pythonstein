@@ -2,15 +2,15 @@ import glm
 import pygame
 
 from utils.gridmap import GridMap
-from utils.player import Player
+from utils.ray import Ray
 from utils.render import Render
 
 
-def mouse_motion(ray: Player, event: glm.ivec2):
+def mouse_motion(ray: Ray, event: glm.ivec2):
     ray.angle_degrees += event.x
 
 
-def key_pressed(player_ray: Player, grid: GridMap, speed: float, keys: dict):
+def key_pressed(player_ray: Ray, grid: GridMap, speed: float, keys: dict):
     new_pos = glm.vec2(player_ray.origin)
 
     if keys[pygame.K_w]:
@@ -37,7 +37,7 @@ def main(width: int, height: int):
     running = True
     player_speed = 2.0
     player_fov = glm.radians(60)
-    player_ray = Player(glm.vec2(200, 200), glm.radians(0))
+    player_ray = Ray(glm.vec2(200, 200), glm.radians(0))
     game_map = GridMap.from_file('assets/maps/10x10map.txt', 64)
     render = Render(width, height)
 
