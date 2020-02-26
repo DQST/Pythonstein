@@ -4,7 +4,7 @@ import glm
 import numpy as np
 
 from utils.hit import Hit
-from utils.player import Player
+from utils.ray import Ray
 
 
 @dataclass
@@ -46,7 +46,7 @@ class GridMap:
         return glm.ivec2(x, y)
 
     @staticmethod
-    def _box_ray_intersection(ray: 'Player', box_min: glm.vec2, box_max: glm.vec2):
+    def _box_ray_intersection(ray: 'Ray', box_min: glm.vec2, box_max: glm.vec2):
         inv_dir = ray.inverse_direction
         lo = inv_dir.x * (box_min.x - ray.origin.x)
         hi = inv_dir.x * (box_max.x - ray.origin.x)
@@ -59,7 +59,7 @@ class GridMap:
 
         return t_max + 1
 
-    def ray_travers(self, ray: 'Player') -> Hit:
+    def ray_travers(self, ray: 'Ray') -> Hit:
         current = ray.origin
         while True:
             tile = self._to_tile_coords(*current)
@@ -72,9 +72,9 @@ class GridMap:
                 return Hit(length, ray.radians, current)
             current = ray.origin + t * ray.direction
 
-    def ray_casting(self, width: int, fov: float, ray: Player):
+    def ray_casting(self, width: int, fov: float, ray: Ray):
         start_angle = ray.radians - fov / 2
-        return [self.ray_travers(Player(ray.origin, start_angle + fov * x / width)) for x in range(width)]
+        return [self.ray_travers(Ray(ray.origin, start_angle + fov * x / width)) for x in range(width)]
 
     def __iter__(self):
         return np.nditer(self.__data)
