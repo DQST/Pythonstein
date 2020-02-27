@@ -1,9 +1,7 @@
 import glm
 import pygame
 
-from utils.gridmap import GridMap
-from utils.ray import Ray
-from utils.render import Render
+from utils import Ray, GridMap, Render
 
 
 def mouse_motion(ray: Ray, event: glm.ivec2):
