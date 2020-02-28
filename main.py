@@ -2,6 +2,7 @@ import glm
 import pygame
 
 from utils import Ray, GridMap, Render
+from utils.texture import TextureLoader
 
 
 def mouse_motion(ray: Ray, event: glm.ivec2):
@@ -22,7 +23,7 @@ def key_pressed(player_ray: Ray, grid: GridMap, speed: float, keys: dict):
         player_ray.angle_degrees += 1
 
     tile_x, tile_y = new_pos / grid.cell_size
-    if grid.get(int(tile_x), int(tile_y)) != grid.stop_when:
+    if grid.get(int(tile_x), int(tile_y)) == ord(' '):
         player_ray.origin = new_pos
 
 
@@ -36,7 +37,9 @@ def main(width: int, height: int):
     player_speed = 2.0
     player_fov = glm.radians(60)
     player_ray = Ray(glm.vec2(200, 200), glm.radians(0))
+    atlas = TextureLoader.load('assets/textures/texture_atlas.png').to_atlas(64)
     game_map = GridMap.from_file('assets/maps/10x10map.txt', 64)
+    game_map.texture_atlas = atlas
     render = Render(width, height)
 
     pygame.init()
