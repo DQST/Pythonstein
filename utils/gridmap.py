@@ -68,8 +68,10 @@ class GridMap:
             t = self._box_ray_intersection(ray, box_min, box_max)
 
             if self._is_out_of_range(*tile) or self.get(*tile) == self.stop_when:
-                length = glm.distance(current, ray.origin)
-                return Hit(length, ray.radians, current)
+                length = abs(ray.origin.x - current.x) / glm.cos(ray.radians)
+                if not length:
+                    length = abs(ray.origin.y - current.y) / glm.sin(ray.radians)
+                return Hit(abs(length), ray.radians, current)
             current = ray.origin + t * ray.direction
 
     def ray_casting(self, width: int, fov: float, ray: Ray):
