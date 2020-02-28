@@ -49,10 +49,15 @@ class Render:
         for x in range(grid.size.x):
             for y in range(grid.size.y):
                 xx, yy = x * scale.x, y * scale.y
-                if grid.get(x, y) == ord('#'):
-                    draw.rectangle((xx, yy, xx + scale.x, yy + scale.y), fill=COLOR_RED)
-                else:
+                value = grid.get(x, y)
+                if value == ord(' '):
                     draw.rectangle((xx, yy, xx + scale.x, yy + scale.y), outline=COLOR_GREEN)
+                else:
+                    color = COLOR_RED
+                    if value < len(grid.texture_atlas):
+                        texture = grid.texture_atlas[value]
+                        color = tuple(texture.data[0, 0])
+                    draw.rectangle((xx, yy, xx + scale.x, yy + scale.y), fill=color)
 
         player = ray_origin / grid.cell_size * scale
         draw.rectangle((*(player - 1), *(player + 1)), COLOR_WHITE)
