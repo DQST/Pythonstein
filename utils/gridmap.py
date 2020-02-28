@@ -1,10 +1,11 @@
 from dataclasses import dataclass, field
+from typing import Optional
 
 import glm
 import numpy as np
 
-from utils.hit import Hit
-from utils.ray import Ray
+from utils import Hit, Ray
+from utils.texture import TextureAtlas
 
 
 @dataclass
@@ -12,6 +13,7 @@ class GridMap:
     size: glm.ivec2
     cell_size: int
     stop_when: int = ord('#')
+    texture_atlas: Optional[TextureAtlas] = None
     __data: np.ndarray = field(init=False)
 
     def __post_init__(self):
@@ -67,7 +69,7 @@ class GridMap:
             box_max = box_min + self.cell_size
             t = self._box_ray_intersection(ray, box_min, box_max)
 
-            if self._is_out_of_range(*tile) or self.get(*tile) == self.stop_when:
+            if self._is_out_of_range(*tile) or self.get(*tile) != ord(' '):
                 length = abs(ray.origin.x - current.x) / glm.cos(ray.radians)
                 if not length:
                     length = abs(ray.origin.y - current.y) / glm.sin(ray.radians)
