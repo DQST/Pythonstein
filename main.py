@@ -28,8 +28,8 @@ def key_pressed(player_ray: Ray, grid: GridMap, speed: float, keys: dict):
 
 
 def display_buffer(display, buffer):
-    img = pygame.image.fromstring(buffer.tobytes(), buffer.size, buffer.mode)
-    display.blit(img, (0, 0))
+    surface = pygame.surfarray.make_surface(buffer)
+    display.blit(surface, (0, 0))
 
 
 def main(width: int, height: int):
