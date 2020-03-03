@@ -5,7 +5,7 @@ import glm
 import numpy as np
 
 from utils import Hit, Ray
-from utils.texture import TextureAtlas
+from utils.texture import TextureAtlas, Texture
 
 
 @dataclass
@@ -67,14 +67,24 @@ class GridMap:
             tile = self._to_tile_coords(*current)
             box_min = tile * self.cell_size
             box_max = box_min + self.cell_size
-            t = self._box_ray_intersection(ray, box_min, box_max)
 
             if self._is_out_of_range(*tile) or self.get(*tile) != ord(' '):
                 length = abs(ray.origin.x - current.x) / glm.cos(ray.radians)
                 if not length:
                     length = abs(ray.origin.y - current.y) / glm.sin(ray.radians)
                 return Hit(abs(length), ray.radians, current)
+
+            t = self._box_ray_intersection(ray, box_min, box_max)
             current = ray.origin + t * ray.direction
+
+    def get_texture(self, hit_point: glm.vec2) -> Optional[Texture]:
+        tile = self._to_tile_coords(*hit_point)
+        tile_value = chr(self.get(*tile))
+        if tile_value == ' ':
+            return None
+
+        tile_value = int(tile_value)
+        return self.texture_atlas[tile_value]
 
     def ray_casting(self, width: int, fov: float, ray: Ray):
         start_angle = ray.radians - fov / 2
