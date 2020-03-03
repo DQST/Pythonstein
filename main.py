@@ -32,7 +32,16 @@ def display_buffer(display, buffer):
     display.blit(surface, (0, 0))
 
 
+def init(height: int, width: int, caption: str):
+    pygame.init()
+    display = pygame.display.set_mode((width, height))
+    pygame.display.set_caption(caption)
+    return display
+
+
 def main(width: int, height: int):
+    display = init(height, width, 'raycaster')
+
     running = True
     player_speed = 2.0
     player_fov = glm.radians(60)
@@ -42,8 +51,6 @@ def main(width: int, height: int):
     game_map.texture_atlas = atlas
     render = Render(width, height)
 
-    pygame.init()
-    display = pygame.display.set_mode((width, height))
     pygame.event.set_grab(True)
     pygame.mouse.set_visible(False)
     clock = pygame.time.Clock()
