@@ -23,7 +23,9 @@ class Texture:
     height: int
 
     def slice(self, x: int, y: int, w: int, h: int) -> 'Texture':
-        return Texture(self.data[y: h, x: w], w, h)
+        data = self.data[y: h, x: w]
+        h, w = data.shape[:2]
+        return Texture(data, w, h)
 
     def to_atlas(self, offset: int) -> TextureAtlas:
         textures = []
@@ -35,6 +37,11 @@ class Texture:
                 textures.append(texture)
         return TextureAtlas(textures)
 
+    def rescale_column(self, column: int, new_height: int):
+        data = self.data[:, column]
+        y_ration = int((self.height << 16) / new_height) + 1
+        return np.array([data[(i * y_ration) >> 16] for i in range(new_height)], dtype=np.uint8)
+
 
 @dataclass
 class TextureLoader:
@@ -43,7 +50,7 @@ class TextureLoader:
     @classmethod
     def load(cls, path: str) -> Texture:
         if path not in cls._data:
-            data = np.array(Image.open(path))
+            data = np.array(Image.open(path), dtype=np.uint8)
             height, width = data.shape[:2]
             cls._data[path] = Texture(data, width, height)
         return cls._data[path]
