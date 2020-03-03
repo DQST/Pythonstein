@@ -55,9 +55,9 @@ class Render:
 
         player = glm.ivec2(glm.floor(ray_origin / grid.cell_size * scale))
         self._back_buffer[player.y - 1:player.y + 1, player.x - 1:player.x + 1] = COLOR_WHITE
-        # for hit in hits:
-        #     point = hit.point / grid.cell_size * scale
-        #     draw.line((*player, *point), COLOR_YELLOW)
+        for hit in hits:
+            point = glm.ivec2(glm.floor(hit.point / grid.cell_size * scale))
+            self._back_buffer[point.y - 1:point.y + 1, point.x - 1:point.x + 1] = COLOR_WHITE
 
     def draw_scene(self,
                    player_radians: float,
@@ -68,10 +68,12 @@ class Render:
         y = self.height / 2
         max_val = self.height - 1
         precomputed = wall_height * projection_plane
+        # texture = grid.texture_atlas[2]
         for x, hit in enumerate(hits):
             correct_distance = hit.length * glm.cos(hit.radians - player_radians)
             column_height = precomputed / correct_distance
             h1, h2 = glm.ivec2(glm.floor(glm.clamp(glm.vec2(y - column_height, y + column_height), min_val, max_val)))
+            # x_column = int(glm.floor(hit.point.x)) & (wall_height - 1)
             self._back_buffer[h1:h2, x] = COLOR_GRAY
 
     def update_state(self, ray: Ray, fov: float, grid: GridMap):
@@ -80,7 +82,7 @@ class Render:
         hits = grid.ray_casting(self.width, fov, ray)
 
         self.draw_scene(ray.radians, 277, grid.cell_size, hits, grid)
-        # self.draw_help_map(ray.origin, grid, self.help_map_size, hits)
+        self.draw_help_map(ray.origin, grid, self.help_map_size, hits)
 
         self.swap_buffers()
 
@@ -90,4 +92,4 @@ class Render:
 
     @property
     def buffer(self):
-        return self._back_buffer.swapaxes(0, 1)
+        return self._buffer.swapaxes(0, 1)
