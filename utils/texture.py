@@ -37,10 +37,12 @@ class Texture:
                 textures.append(texture)
         return TextureAtlas(textures)
 
-    def rescale_column(self, column: int, new_height: int):
-        data = self.data[:, column]
-        y_ration = int((self.height << 16) / new_height) + 1
-        return np.array([data[(i * y_ration) >> 16] for i in range(new_height)], dtype=np.uint8)
+    def get_scaled_column(self, texture_coordinate: int, column_height: int):
+        column = np.zeros((column_height, self.data.shape[-1]), dtype=np.uint8)
+        for y in range(column_height):
+            row: int = int((y * self.height) / column_height)
+            column[y] = self.data[row, texture_coordinate]
+        return column
 
 
 @dataclass
