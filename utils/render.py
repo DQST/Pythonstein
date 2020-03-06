@@ -68,13 +68,13 @@ class Render:
         y = self.height / 2
         max_val = self.height - 1
         precomputed = wall_height * projection_plane
-        # texture = grid.texture_atlas[2]
+        texture = grid.texture_atlas[2]
         for x, hit in enumerate(hits):
             correct_distance = hit.length * glm.cos(hit.radians - player_radians)
             column_height = precomputed / correct_distance
             h1, h2 = glm.ivec2(glm.floor(glm.clamp(glm.vec2(y - column_height, y + column_height), min_val, max_val)))
-            # x_column = int(glm.floor(hit.point.x)) & (wall_height - 1)
-            self._back_buffer[h1:h2, x] = COLOR_GRAY
+            x_column = int(hit.point.x) & (wall_height - 1)
+            self._back_buffer[h1:h2, x] = texture.get_scaled_column(x_column, h2 - h1)
 
     def update_state(self, ray: Ray, fov: float, grid: GridMap):
         self._back_buffer[:] = self.background
